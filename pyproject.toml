@@ -30,6 +30,9 @@ eurostat-discovery-search = "data_access.discovery_runner:main"
 eurostat-candidate-registry = "data_access.candidate_registry:main"
 eurostat-pull = "data_access.pull_eurostat:main"
 eurostat-build-monthly-features = "features.monthly_features:main"
+eurostat-build-gdp-targets = "features.targets:main"
+eurostat-run-baselines = "models.baselines:main"
+eurostat-build-oil-stress = "features.oil_stress:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

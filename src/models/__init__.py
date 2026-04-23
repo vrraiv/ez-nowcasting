@@ -1,3 +1,3 @@
-from .baselines import BaselineModelSpec, baseline_model_specs
+from __future__ import annotations
 
-__all__ = ["BaselineModelSpec", "baseline_model_specs"]
+__all__: list[str] = []

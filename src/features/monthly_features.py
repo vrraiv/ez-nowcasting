@@ -198,6 +198,7 @@ def _prepare_observation_frame(observations: pd.DataFrame, selected_config: Sele
                 "release_lag_months": definition.release_lag_months or 0,
                 "release_lag_days": definition.release_lag_days or 0,
                 "aggregate_from_panel": definition.aggregate_from_panel,
+                "aggregate_method_preference": definition.aggregate_method or "simple_mean",
                 "configured_geos": tuple(_dimension_list(definition.dimensions.get("geo"))),
             }
         )
@@ -234,6 +235,7 @@ def _prepare_observation_frame(observations: pd.DataFrame, selected_config: Sele
         "release_lag_months",
         "release_lag_days",
         "aggregate_from_panel",
+        "aggregate_method_preference",
         "configured_geos",
         "aggregation_method",
         "aggregate_source_panel",
@@ -253,6 +255,7 @@ def _append_country_aggregates(monthly: pd.DataFrame, selected_config: SelectedS
 
         indicator_definition = selected_config.selected_series[str(indicator_code)]
         candidate_panel = indicator_definition.aggregate_from_panel
+        aggregate_method = indicator_definition.aggregate_method or "simple_mean"
         if candidate_panel is None:
             candidate_panel = _infer_panel_name(observed_geos, selected_config.geo_panels)
         if candidate_panel is None:
@@ -266,11 +269,18 @@ def _append_country_aggregates(monthly: pd.DataFrame, selected_config: SelectedS
         if eligible["geo"].nunique() < 2:
             continue
 
+        if aggregate_method == "sum":
+            raw_aggregation = "sum"
+        elif aggregate_method == "simple_mean":
+            raw_aggregation = "mean"
+        else:
+            raise ValueError(f"Unsupported aggregate method for {indicator_code}: {aggregate_method}")
+
         aggregate = (
             eligible.groupby("month_end", as_index=False)
             .agg(
                 {
-                    "raw_value": "mean",
+                    "raw_value": raw_aggregation,
                     "concept": "first",
                     "configured_transformation": "first",
                     "unit": "first",
@@ -280,12 +290,13 @@ def _append_country_aggregates(monthly: pd.DataFrame, selected_config: SelectedS
                     "release_lag_months": "first",
                     "release_lag_days": "first",
                     "aggregate_from_panel": "first",
+                    "aggregate_method_preference": "first",
                 }
             )
             .assign(
                 geo=f"AGG_{candidate_panel.upper()}",
                 indicator_code=indicator_code,
-                aggregation_method="simple_mean",
+                aggregation_method=aggregate_method,
                 aggregate_source_panel=candidate_panel,
             )
         )
@@ -322,6 +333,7 @@ def _complete_monthly_grid(monthly: pd.DataFrame, start_month_end: pd.Timestamp,
             "release_lag_months",
             "release_lag_days",
             "aggregate_from_panel",
+            "aggregate_method_preference",
             "configured_geos",
             "aggregation_method",
             "aggregate_source_panel",

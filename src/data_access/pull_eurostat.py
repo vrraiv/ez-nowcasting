@@ -45,6 +45,7 @@ class SelectedSeriesDefinition(BaseModel):
     release_lag_months: int | None = None
     release_lag_days: int | None = None
     aggregate_from_panel: str | None = None
+    aggregate_method: str | None = None
 
 
 class SelectedSeriesConfig(BaseModel):
@@ -67,6 +68,7 @@ class SeriesSelection(BaseModel):
     release_lag_months: int | None = None
     release_lag_days: int | None = None
     aggregate_from_panel: str | None = None
+    aggregate_method: str | None = None
 
 
 class EurostatPuller:
@@ -74,6 +76,8 @@ class EurostatPuller:
         self,
         client: RetryingHttpClient,
         cache: FileResponseCache,
+        raw_root: Path | None = None,
+        processed_root: Path | None = None,
         logger: logging.Logger | None = None,
     ) -> None:
         self.settings = get_settings()
@@ -81,8 +85,8 @@ class EurostatPuller:
         self.cache = cache
         self.logger = logger or logging.getLogger(__name__)
         resolved_paths = self.settings.resolved_paths()
-        self.raw_root = resolved_paths["raw_data_dir"] / "eurostat"
-        self.processed_root = resolved_paths["processed_data_dir"] / "eurostat"
+        self.raw_root = raw_root or (resolved_paths["raw_data_dir"] / "eurostat")
+        self.processed_root = processed_root or (resolved_paths["processed_data_dir"] / "eurostat")
 
     def pull(
         self,
@@ -91,6 +95,7 @@ class EurostatPuller:
         response_format: str = "jsonstat",
         end_period: str | None = None,
         force_refresh: bool = False,
+        combined_output_name: str = "selected_series_monthly",
     ) -> pd.DataFrame:
         normalized_frames: list[pd.DataFrame] = []
 
@@ -115,8 +120,11 @@ class EurostatPuller:
                 selection=selection,
                 response_format=response_format,
             )
-            normalized_path = self.processed_root / f"{selection.alias}.parquet"
-            write_dataframe_parquet(frame, normalized_path)
+            normalized_path = _write_table_with_csv_fallback(
+                frame,
+                self.processed_root / selection.alias,
+                self.logger,
+            )
             normalized_frames.append(frame)
 
             self.logger.info(
@@ -133,9 +141,12 @@ class EurostatPuller:
             if normalized_frames
             else _empty_tidy_frame()
         )
-        combined_path = self.processed_root / "selected_series_monthly.parquet"
-        write_dataframe_parquet(combined, combined_path)
-        self.logger.info("Saved combined parquet with %s rows to %s", len(combined), combined_path)
+        combined_path = _write_table_with_csv_fallback(
+            combined,
+            self.processed_root / combined_output_name,
+            self.logger,
+        )
+        self.logger.info("Saved combined normalized table with %s rows to %s", len(combined), combined_path)
         return combined
 
     def _raw_response_path(self, selection: SeriesSelection, start_period: str, response_format: str) -> Path:
@@ -170,6 +181,7 @@ def iter_selected_series(
                 release_lag_months=definition.release_lag_months,
                 release_lag_days=definition.release_lag_days,
                 aggregate_from_panel=definition.aggregate_from_panel,
+                aggregate_method=definition.aggregate_method,
             )
         )
 
@@ -383,6 +395,17 @@ def configure_logging(level: str = "INFO") -> Path:
         force=True,
     )
     return log_path
+
+
+def _write_table_with_csv_fallback(frame: pd.DataFrame, stem: Path, logger: logging.Logger) -> Path:
+    csv_path = stem.with_suffix(".csv")
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(csv_path, index=False)
+    try:
+        write_dataframe_parquet(frame, stem.with_suffix(".parquet"))
+    except RuntimeError as exc:
+        logger.warning("Skipping parquet output for %s: %s", stem.name, exc)
+    return csv_path
 
 
 def main(argv: list[str] | None = None) -> int:

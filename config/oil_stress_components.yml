@@ -1,0 +1,216 @@
+version: 1
+
+target_geo: EA20
+minimum_component_count: 5
+
+geo_panels:
+  large_members_no_ea20:
+    - DE
+    - FR
+    - IT
+    - ES
+    - NL
+    - BE
+    - AT
+
+components:
+  crude_oil_import_price:
+    label: Crude oil import price
+    bucket: direct_supply
+    dataset_id: NRG_TI_COIFPM
+    dimensions:
+      freq: M
+      crudeoil: TOTAL
+      indic_nrg: AVGPRC_USD_BBL
+      geo:
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    signal_transformation: y_y_percent
+    stress_direction: positive
+    aggregate_from_panel: large_members_no_ea20
+    panel_aggregation: mean
+    structural_weight: 0.14
+    interpretation: Higher import prices point to tighter global crude supply and faster external price pass-through into Europe.
+    cyclical_sensitivity: medium
+
+  crude_oil_import_volume:
+    label: Crude oil import volume
+    bucket: direct_supply
+    dataset_id: NRG_TI_COIFPM
+    dimensions:
+      freq: M
+      crudeoil: TOTAL
+      indic_nrg: VOL_THS_BBL
+      geo:
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    signal_transformation: y_y_percent
+    stress_direction: negative
+    aggregate_from_panel: large_members_no_ea20
+    panel_aggregation: sum
+    structural_weight: 0.12
+    interpretation: Falling crude import volumes are a direct physical-supply warning signal.
+    cyclical_sensitivity: medium
+
+  petroleum_imports_volume:
+    label: Oil and petroleum import volume
+    bucket: direct_supply
+    dataset_id: NRG_TI_OILM
+    dimensions:
+      freq: M
+      partner: TOTAL
+      siec: O4000
+      unit: THS_T
+      geo:
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    signal_transformation: y_y_percent
+    stress_direction: negative
+    aggregate_from_panel: large_members_no_ea20
+    panel_aggregation: sum
+    structural_weight: 0.12
+    interpretation: Lower petroleum-product imports suggest tighter energy availability into the main euro-area economies.
+    cyclical_sensitivity: medium
+
+  energy_producer_prices:
+    label: Energy producer prices
+    bucket: pass_through_prices
+    dataset_id: STS_INPPD_M
+    dimensions:
+      freq: M
+      indic_bt: PRC_PRR_DOM
+      nace_r2: MIG_NRG
+      s_adj: NSA
+      unit: I15
+      geo: EA20
+    signal_transformation: y_y_percent
+    stress_direction: positive
+    structural_weight: 0.12
+    interpretation: Rising energy producer prices capture the industrial pass-through of oil and energy supply shocks.
+    cyclical_sensitivity: low
+
+  refined_petroleum_producer_prices:
+    label: Refined petroleum producer prices
+    bucket: pass_through_prices
+    dataset_id: STS_INPPD_M
+    dimensions:
+      freq: M
+      indic_bt: PRC_PRR_DOM
+      nace_r2: C19
+      s_adj: NSA
+      unit: I15
+      geo: EA20
+    signal_transformation: y_y_percent
+    stress_direction: positive
+    structural_weight: 0.10
+    interpretation: Price pressure in coke and refined petroleum products measures refinery-side transmission into European industry.
+    cyclical_sensitivity: low
+
+  refined_petroleum_output:
+    label: Refined petroleum output
+    bucket: refining_and_downstream
+    dataset_id: STS_INPR_M
+    dimensions:
+      freq: M
+      indic_bt: PRD
+      nace_r2: C19
+      s_adj: SCA
+      unit: I15
+      geo: EA20
+    signal_transformation: 3m_3m_saar
+    stress_direction: negative
+    structural_weight: 0.12
+    interpretation: Falling refined-petroleum output is a direct sign of refinery strain and tighter product supply.
+    cyclical_sensitivity: medium
+
+  chemicals_output:
+    label: Chemicals output
+    bucket: energy_intensive_activity
+    dataset_id: STS_INPR_M
+    dimensions:
+      freq: M
+      indic_bt: PRD
+      nace_r2: C20
+      s_adj: SCA
+      unit: I15
+      geo: EA20
+    signal_transformation: 3m_3m_saar
+    stress_direction: negative
+    structural_weight: 0.08
+    interpretation: Chemicals production is energy-intensive and tends to weaken when input costs or physical energy availability deteriorate.
+    cyclical_sensitivity: high
+
+  basic_metals_output:
+    label: Basic metals output
+    bucket: energy_intensive_activity
+    dataset_id: STS_INPR_M
+    dimensions:
+      freq: M
+      indic_bt: PRD
+      nace_r2: C24
+      s_adj: SCA
+      unit: I15
+      geo: EA20
+    signal_transformation: 3m_3m_saar
+    stress_direction: negative
+    structural_weight: 0.07
+    interpretation: Basic-metals output is a second energy-intensive downstream proxy that reacts to sustained energy shortages and cost spikes.
+    cyclical_sensitivity: high
+
+  extra_eu_intermediate_imports:
+    label: Extra-EU intermediate goods imports
+    bucket: external_dependence
+    dataset_id: EI_ETEA_M
+    dimensions:
+      freq: M
+      stk_flow: IMP
+      partner: EXT_EA21
+      indic: ET-INTER
+      unit: IVOL-SA
+      geo: EA20
+    signal_transformation: 3m_3m_saar
+    stress_direction: negative
+    structural_weight: 0.07
+    interpretation: Weak extra-EU intermediate-goods imports can flag external supply bottlenecks, though they are also demand-sensitive.
+    cyclical_sensitivity: high
+
+  extra_eu_air_freight:
+    label: Extra-EU air freight
+    bucket: logistics_and_freight
+    dataset_id: AVIA_GOOC
+    dimensions:
+      freq: M
+      unit: T
+      tra_meas: FRM_LD
+      schedule: TOT
+      tra_cov: INTL_XEU27_2020
+      geo:
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    signal_transformation: y_y_percent
+    stress_direction: negative
+    aggregate_from_panel: large_members_no_ea20
+    panel_aggregation: sum
+    structural_weight: 0.06
+    interpretation: Lower extra-EU freight volumes can signal logistics stress, but this component is intentionally low weight because it is demand-sensitive.
+    cyclical_sensitivity: high
