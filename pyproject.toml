@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eurozone-nowcasting"
+version = "0.1.0"
+description = "Scaffold for euro-area GDP nowcasting with Eurostat monthly data."
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "pandas>=2.2,<3.0",
+    "numpy>=1.26,<3.0",
+    "httpx>=0.27,<1.0",
+    "requests>=2.32,<3.0",
+    "PyYAML>=6.0,<7.0",
+    "pydantic>=2.7,<3.0",
+    "pyarrow>=18.0,<20.0",
+    "statsmodels>=0.14,<1.0",
+    "scikit-learn>=1.5,<2.0",
+    "matplotlib>=3.8,<4.0",
+]
+
+[project.optional-dependencies]
+polars = ["polars>=1.9,<2.0"]
+dev = ["pytest>=8.0,<9.0"]
+
+[project.scripts]
+eurostat-discovery-search = "data_access.discovery_runner:main"
+eurostat-candidate-registry = "data_access.candidate_registry:main"
+eurostat-pull = "data_access.pull_eurostat:main"
+eurostat-build-monthly-features = "features.monthly_features:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+config = ["project_config.toml"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]

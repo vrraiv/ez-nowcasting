@@ -1,0 +1,355 @@
+version: 1
+
+geo_panels:
+  ea20_plus_large_members:
+    - EA20
+    - DE
+    - FR
+    - IT
+    - ES
+    - NL
+    - BE
+    - AT
+  large_members_no_ea20:
+    - DE
+    - FR
+    - IT
+    - ES
+    - NL
+    - BE
+    - AT
+
+selected_series:
+  industrial_production:
+    concept: Industrial production
+    dataset_id: STS_INPR_M
+    dimensions:
+      freq: M
+      indic_bt: PRD
+      nace_r2: B-D
+      s_adj: SCA
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: 3m_3m_saar
+
+  manufacturing_output:
+    concept: Manufacturing output
+    dataset_id: STS_INPR_M
+    dimensions:
+      freq: M
+      indic_bt: PRD
+      nace_r2: C
+      s_adj: SCA
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: 3m_3m_saar
+
+  construction_output:
+    concept: Construction output
+    dataset_id: STS_COPR_M
+    dimensions:
+      freq: M
+      indic_bt: PRD
+      nace_r2: F
+      s_adj: SCA
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: 3m_3m_saar
+
+  retail_trade_volume:
+    concept: Retail trade volume
+    dataset_id: STS_TRTU_M
+    dimensions:
+      freq: M
+      indic_bt: VOL_SLS
+      nace_r2: G47
+      s_adj: SCA
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: 3m_3m_saar
+
+  services_turnover_volume:
+    concept: Services turnover
+    dataset_id: STS_SETU_M
+    dimensions:
+      freq: M
+      indic_bt: VOL_SLS
+      nace_r2: H-N_STS
+      s_adj: SCA
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: 3m_3m_saar
+
+  unemployment_rate:
+    concept: Unemployment rate
+    dataset_id: UNE_RT_M
+    dimensions:
+      freq: M
+      sex: T
+      age: TOTAL
+      s_adj: SA
+      unit: PC_ACT
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: level
+
+  employment_expectations_proxy:
+    concept: Employment / vacancies monthly proxy
+    dataset_id: EI_BSEE_M_R2
+    dimensions:
+      freq: M
+      indic: BS-EEI-I
+      s_adj: SA
+      unit: INX
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: diffusion_style_standardized_level
+
+  hicp_headline:
+    concept: HICP headline
+    dataset_id: PRC_HICP_MIDX
+    dimensions:
+      freq: M
+      coicop: CP00
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: y_y_percent
+
+  hicp_core_proxy:
+    concept: HICP core-related proxy
+    dataset_id: PRC_HICP_MIDX
+    dimensions:
+      freq: M
+      coicop: TOT_X_NRG_FOOD
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: y_y_percent
+
+  producer_prices:
+    concept: Producer prices
+    dataset_id: STS_INPPD_M
+    dimensions:
+      freq: M
+      indic_bt: PRC_PRR_DOM
+      nace_r2: B-D
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: y_y_percent
+
+  import_prices:
+    concept: Import prices
+    dataset_id: STS_INPI_M
+    dimensions:
+      freq: M
+      indic_bt: PRC_IMP
+      cpa2_1: CPA_B-D
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: y_y_percent
+
+  exports_volume:
+    concept: Exports
+    dataset_id: EI_ETEA_M
+    dimensions:
+      freq: M
+      stk_flow: EXP
+      partner: EXT_EA21
+      indic: ET-T
+      unit: IVOL-SA
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: 3m_3m_saar
+
+  imports_volume:
+    concept: Imports
+    dataset_id: EI_ETEA_M
+    dimensions:
+      freq: M
+      stk_flow: IMP
+      partner: EXT_EA21
+      indic: ET-T
+      unit: IVOL-SA
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: 3m_3m_saar
+
+  extra_eu_trade_balance_pulse:
+    concept: Extra-EU trade
+    dataset_id: EI_ETEA_M
+    dimensions:
+      freq: M
+      stk_flow: BAL_RT
+      partner: EXT_EA21
+      indic: ET-T
+      unit: RT1-ABS-SA
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: m_m_percent
+
+  energy_import_bill:
+    concept: Energy import values / volumes
+    dataset_id: NRG_TI_COIFPM
+    dimensions:
+      freq: M
+      crudeoil: TOTAL
+      indic_nrg: VAL_THS_USD
+      geo:
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: y_y_percent
+
+  petroleum_imports_volume:
+    concept: Petroleum imports
+    dataset_id: NRG_TI_OILM
+    dimensions:
+      freq: M
+      partner: TOTAL
+      siec: O4000
+      unit: THS_T
+      geo:
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: y_y_percent
+
+  energy_producer_prices:
+    concept: Energy producer prices
+    dataset_id: STS_INPPD_M
+    dimensions:
+      freq: M
+      indic_bt: PRC_PRR_DOM
+      nace_r2: MIG_NRG
+      unit: I15
+      geo:
+        - EA20
+        - DE
+        - FR
+        - IT
+        - ES
+        - NL
+        - BE
+        - AT
+    transformation: y_y_percent
+
+deferred_concepts:
+  transport_freight_proxy:
+    reason: >
+      The clean monthly candidate found in Eurostat is AVIA_GOOA, but it is airport-level rather than
+      country-level and would require expanding hundreds of rep_airp codes into an aggregation map.
+      That makes the baseline filter set less exact and harder to maintain, so it is deferred.
