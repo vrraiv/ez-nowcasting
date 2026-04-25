@@ -3,7 +3,11 @@ from __future__ import annotations
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
-import tomllib
+
+try:
+    import tomllib as toml_reader
+except ModuleNotFoundError:  # pragma: no cover - exercised on Python 3.10 only.
+    import tomli as toml_reader
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -109,7 +113,7 @@ class ProjectSettings(BaseModel):
 def load_settings(path: Path | None = None) -> ProjectSettings:
     config_path = path or DEFAULT_CONFIG_PATH
     with config_path.open("rb") as handle:
-        raw_settings = tomllib.load(handle)
+        raw_settings = toml_reader.load(handle)
     return ProjectSettings.model_validate(raw_settings)
 
 

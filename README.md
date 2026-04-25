@@ -1,6 +1,6 @@
 # Euro-Area GDP Nowcasting
 
-This repository is a scaffold for a Python 3.11 nowcasting project built around Eurostat monthly indicators and a quarterly euro-area GDP target. The current version sets up the repository structure, dependency management, configuration patterns, and placeholder modules so that data discovery, download, transformation, feature design, and model implementation can be added incrementally.
+This repository is a scaffold for a Python 3.10+ nowcasting project built around Eurostat monthly indicators and a quarterly euro-area GDP target. The current version sets up the repository structure, dependency management, configuration patterns, and placeholder modules so that data discovery, download, transformation, feature design, and model implementation can be added incrementally.
 
 ## Repository layout
 
@@ -61,20 +61,37 @@ The selected monthly indicator registry lives in `config/selected_series.yml`. T
 ## Quick start
 
 ```powershell
-py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -e .[dev]
-pip install -e .[polars]
+powershell -ExecutionPolicy Bypass -File .\scripts\run_workflow.ps1 -Stage setup
 ```
 
-If you prefer not to use Polars, the optional extra can be skipped.
+The setup script creates `.venv` with Python 3.10 or 3.11 and installs the project in editable mode with development dependencies. It does not require the Windows `py` launcher to be available on `PATH`; it checks common Python install commands and locations.
+
+If Python 3.10 or 3.11 is installed but not discoverable, pass it explicitly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run_workflow.ps1 -Stage setup -PythonExe "C:\Path\To\python.exe"
+```
+
+If you want the optional Polars dependency, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run_workflow.ps1 -Stage setup -WithPolars
+```
+
+To run the main pipeline from the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run_workflow.ps1 -Stage all -StartMonth 2000-01 -StartQuarter 2000-Q1
+```
+
+You can also run individual stages with `-Stage discovery`, `-Stage ingest`, `-Stage features`, `-Stage targets`, `-Stage baselines`, or `-Stage oil-stress`.
 
 ## Monthly ingestion
 
 Pull the configured monthly Eurostat panel with:
 
 ```powershell
-python -m src.data_access.pull_eurostat --start 2000-01
+.\.venv\Scripts\python.exe -m data_access.pull_eurostat --start 2000-01
 ```
 
 Useful optional flags:
@@ -98,7 +115,7 @@ Outputs are written to:
 Build the monthly feature set from the normalized Eurostat panel with:
 
 ```powershell
-python -m src.features.monthly_features --input data_processed/eurostat/selected_series_monthly.parquet
+.\.venv\Scripts\python.exe -m features.monthly_features --input data_processed/eurostat/selected_series_monthly.parquet
 ```
 
 The feature pipeline:
@@ -118,7 +135,7 @@ If release-lag metadata becomes available later, `config/selected_series.yml` ca
 Build the quarterly GDP target set and the monthly bridge targets with:
 
 ```powershell
-python -m src.features.targets --start 2000-Q1
+.\.venv\Scripts\python.exe -m features.targets --start 2000-Q1
 ```
 
 The target pipeline:
@@ -142,7 +159,7 @@ Outputs are written to:
 Run the baseline nowcast backtests with:
 
 ```powershell
-python -m src.models.baselines --features data_processed/features/monthly_features_long.csv --targets data_processed/targets/monthly_bridge_targets.csv
+.\.venv\Scripts\python.exe -m models.baselines --features data_processed/features/monthly_features_long.csv --targets data_processed/targets/monthly_bridge_targets.csv
 ```
 
 The baseline modeling pipeline:
@@ -164,7 +181,7 @@ The bridge model runs with the standard library, `numpy`, and `pandas`. The dyna
 Build the euro-area oil supply stress indicator with:
 
 ```powershell
-python -m src.features.oil_stress --start 2000-01
+.\.venv\Scripts\python.exe -m features.oil_stress --start 2000-01
 ```
 
 The oil-stress pipeline:
@@ -213,8 +230,7 @@ eurostat-discovery-search
 If you want to invoke the module directly from the repo without the console script, use:
 
 ```powershell
-$env:PYTHONPATH = "src"
-python -m data_access.discovery_runner
+.\.venv\Scripts\python.exe -m data_access.discovery_runner
 ```
 
 That script searches for:
